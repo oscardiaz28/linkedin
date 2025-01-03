@@ -41,9 +41,12 @@ public class AuthenticationController {
     }
 
     @GetMapping("/send-email-verification-token")
-    public String sendEmailVerificationToken(@RequestAttribute("authenticatedUser") AuthenticationUser user ){
+    public ResponseEntity<?> sendEmailVerificationToken(@RequestAttribute("authenticatedUser") AuthenticationUser user ){
         emailService.sendEmailVerificationToken(user.getEmail());
-        return "Email verification token sent successfully";
+        return ResponseBuilder.create()
+                .message("Email verification token sent successfully")
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @PostMapping("/login")
