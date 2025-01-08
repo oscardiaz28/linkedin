@@ -1,5 +1,6 @@
 package com.linkedin.linkedin.features.authentication.controller;
 
+import com.linkedin.linkedin.exception.LinkedinException;
 import com.linkedin.linkedin.features.authentication.dto.AuthenticationRequestBody;
 import com.linkedin.linkedin.features.authentication.dto.AuthenticationResponseBody;
 import com.linkedin.linkedin.features.authentication.model.AuthenticationUser;
@@ -54,5 +55,18 @@ public class AuthenticationController {
         return authenticationService.login(loginRequest);
     }
 
-
+    @PutMapping("/profile/{id}")
+    public AuthenticationUser updateUserProfile(@PathVariable Long id,
+           @RequestAttribute("authenticatedUser") AuthenticationUser user,
+           @RequestParam(required = false, name = "firstname") String firstName,
+           @RequestParam(required = false, name = "lastname") String lastName,
+           @RequestParam(required = false, name = "company") String company,
+           @RequestParam(required = false, name = "position") String position,
+           @RequestParam(required = false, name = "location") String location
+    ){
+        if(!user.getId().equals(id)){
+            throw new LinkedinException("No tienes permisos para actualizar este perfil");
+        }
+        return authenticationService.updateUserProfile(id, firstName, lastName, company, position, location);
+    }
 }

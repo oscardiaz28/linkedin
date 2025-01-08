@@ -114,4 +114,17 @@ public class AuthenticationService {
         }
     }
 
+
+    public AuthenticationUser updateUserProfile(Long id, String firstName, String lastName, String company,
+                                                String position, String location) {
+        AuthenticationUser user = authRepository.findById(id).
+                orElseThrow( () -> new UserNotFoundException("Usuario no encontrado") );
+        if(firstName != null) user.setFirstName(firstName);
+        if(lastName != null ) user.setLastName(lastName);
+        if(company != null ) user.setCompany(company);
+        if( position != null ) user.setPosition(position);
+        if( location != null ) user.setLocation(location);
+        return authRepository.save(user);
+    }
+
 }

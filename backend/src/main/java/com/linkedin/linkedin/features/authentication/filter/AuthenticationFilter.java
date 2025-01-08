@@ -58,13 +58,18 @@ public class AuthenticationFilter extends HttpFilter {
 
             String email = jsonWebToken.getEmailFromToken(decodedJWT);
             AuthenticationUser user = authenticationService.getUser(email);
-            request.setAttribute("authenticatedUser", user);
 
+            if(!user.getEmailVerified()){
+                throw new ServletException("Acción no permitida, usuario no verificado");
+            }
+
+            request.setAttribute("authenticatedUser", user);
             chain.doFilter(request, response);
 
         }catch(Exception e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
 
             ObjectMapper objectMapper = new ObjectMapper();
             ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
