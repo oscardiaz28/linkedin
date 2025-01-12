@@ -1,11 +1,10 @@
 import { FormEvent, useState } from "react"
 import { Box } from "../../components/Box/Box"
-import { Input } from "../../components/Input/Input"
-import { Layout } from "../../components/Layout/Layout"
+import { Input } from "../../../../components/Input/Input"
 
-import classes from '../../components/Layout/Layout.module.scss'
+import classes from '../../components/AuthLayout/AuthLayout.module.scss'
 import styles from './VerifyEmail.module.scss'
-import { Button } from "../../components/Button/Button"
+import { Button } from "../../../../components/Button/Button"
 import { useNavigate } from "react-router-dom"
 import { useAuthentication } from "../../contexts/AuthenticationContextProvider"
 
@@ -15,7 +14,7 @@ export const VerifyEmail = () => {
   const [message, setMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const navigate = useNavigate()
-  const {logout} = useAuthentication()
+  const {user, logout, setUser} = useAuthentication()
  
   const handleVerify = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,6 +26,7 @@ export const VerifyEmail = () => {
   const validateEmail = async (code: string) => {
     setMessage("")
     setErrorMessage("")
+    setIsLoading(true)
     try{
       const response = await fetch(`/api/v1/auth/validate-email-verification-token?token=${code}`, {
         method: "PUT",
@@ -40,6 +40,7 @@ export const VerifyEmail = () => {
         throw new Error(message)                
       }
       setErrorMessage("")
+      setUser({ ...user, emailVerified: true })
       navigate("/")
     }catch(e){
       if(e instanceof Error){
@@ -80,7 +81,7 @@ export const VerifyEmail = () => {
   }
 
   return (
-    <Layout>
+    <div>
       <Box>
         <button className={styles.exit} onClick={ exit }>Salir</button>
         <h1>Verifica tu email</h1>
@@ -96,6 +97,6 @@ export const VerifyEmail = () => {
         </form>
 
       </Box>
-    </Layout>
+    </div>
   )
 }

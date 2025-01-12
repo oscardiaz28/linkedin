@@ -1,0 +1,37 @@
+.root{
+
+    .btn_exit{
+        position: absolute;
+        top: 2.5rem;
+        right: 4rem;
+        cursor: pointer;
+
+        &:hover{
+            text-decoration: underline;
+        }
+    }
+
+    .subtitle{
+        font-size: 1.4rem;
+        color: #333;
+    }
+
+    .inputs{
+        display: flex;
+        gap: 1.5rem;
+        margin-block: 1.8rem;
+    }
+
+    .buttons{
+        display: flex;
+        gap: 1.5rem;
+        justify-content: flex-end;
+    }
+
+    .error{
+        color: red;
+        font-size: 1.3rem;
+        margin-block: 1rem;
+    }
+
+}

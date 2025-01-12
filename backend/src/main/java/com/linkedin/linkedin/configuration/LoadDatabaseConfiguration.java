@@ -1,14 +1,18 @@
 package com.linkedin.linkedin.configuration;
 
+import com.linkedin.linkedin.exception.LinkedinException;
 import com.linkedin.linkedin.features.authentication.model.AuthenticationUser;
 import com.linkedin.linkedin.features.authentication.repository.AuthenticationUserRepository;
 import com.linkedin.linkedin.features.authentication.utils.Encoder;
+import com.linkedin.linkedin.features.feed.model.Comment;
 import com.linkedin.linkedin.features.feed.model.Post;
+import com.linkedin.linkedin.features.feed.repository.CommentRepository;
 import com.linkedin.linkedin.features.feed.repository.PostRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -18,10 +22,12 @@ public class LoadDatabaseConfiguration {
 
     private final Encoder encoder;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
-    public LoadDatabaseConfiguration(Encoder encoder, PostRepository postRepository){
+    public LoadDatabaseConfiguration(Encoder encoder, PostRepository postRepository, CommentRepository commentRepository){
         this.encoder = encoder;
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Bean
@@ -30,6 +36,9 @@ public class LoadDatabaseConfiguration {
             List<AuthenticationUser> users = createUsers(repository);
             //createConnections(connectionRepository, users);
             createPosts(postRepository, users);
+            for(int i = 0; i < 8; i++){
+                generateComment(users);
+            }
         };
     }
 
@@ -93,6 +102,20 @@ public class LoadDatabaseConfiguration {
         }
     }
 
+    private void generateComment(List<AuthenticationUser> users) {
+        Random random = new Random();
+        Post post = postRepository.findById(random.nextLong(5) + 1).orElseThrow(
+                () -> new LinkedinException("Post no encontrado")
+        );
+        String[] comments = {"Excelente foto", "Muy bueno", "Como va todo?", "Saludos colega", "Excente día"};
+        AuthenticationUser author = users.get(random.nextInt(users.size()));
+        Comment comment = new Comment();
+        comment.setPost(post);
+        comment.setAuthor(author);
+        comment.setContent(comments[random.nextInt(comments.length)]);
+        commentRepository.save(comment);
+    }
+
     private HashSet<AuthenticationUser> generateLikes(List<AuthenticationUser> users, Random random) {
         HashSet<AuthenticationUser> likes = new HashSet<>();
         int likesCount = random.nextInt(users.size()) / 2;
@@ -102,6 +125,5 @@ public class LoadDatabaseConfiguration {
         }
         return likes;
     }
-
 
 }

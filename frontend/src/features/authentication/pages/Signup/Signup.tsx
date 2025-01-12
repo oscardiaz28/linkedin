@@ -1,10 +1,9 @@
 import { Link, useNavigate } from "react-router-dom"
 import { Box } from "../../components/Box/Box"
-import { Button } from "../../components/Button/Button"
-import { Input } from "../../components/Input/Input"
-import { Layout } from "../../components/Layout/Layout"
+import { Button } from "../../../../components/Button/Button"
+import { Input } from "../../../../components/Input/Input"
 
-import styles from '../../components/Layout/Layout.module.scss'
+import styles from '../../components/AuthLayout/AuthLayout.module.scss'
 import { Separator } from "../../components/Separator/Separator"
 import classes from './Signup.module.scss'
 import { FormEvent, useState } from "react"
@@ -38,7 +37,7 @@ export const Signup = () => {
   }
 
   return (
-    <Layout>
+    <div>
       <Box>
         <h1>Regístrate</h1>
         <p className={styles.subtitle_form}>Saca el máximo partido a tu vida profesional.</p>
@@ -55,9 +54,9 @@ export const Signup = () => {
         </form>
         <Separator>o</Separator>
         <div className={styles.register}>
-          ¿Ya estás en LinkedIn? <Link to="/login">Iniciar sesión</Link>
+          ¿Ya estás en LinkedIn? <Link to="/auth/login">Iniciar sesión</Link>
         </div>
       </Box>
-    </Layout>
+    </div>
   )
 }

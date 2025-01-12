@@ -1,10 +1,9 @@
 import { FormEvent, useState } from "react"
 import { Box } from "../../components/Box/Box"
-import { Layout } from "../../components/Layout/Layout"
 
-import styles from '../../components/Layout/Layout.module.scss'
-import { Input } from "../../components/Input/Input"
-import { Button } from "../../components/Button/Button"
+import styles from '../../components/AuthLayout/AuthLayout.module.scss'
+import { Input } from "../../../../components/Input/Input"
+import { Button } from "../../../../components/Button/Button"
 import { Separator } from "../../components/Separator/Separator"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuthentication } from "../../contexts/AuthenticationContextProvider"
@@ -35,7 +34,7 @@ export const Login = () => {
   }
 
   return (
-    <Layout>
+    <div>
       <Box>
         <h1>Iniciar Sesión</h1>
         <p className={styles.subtitle_form}>Mantente al día de tu mundo profesional.</p>
@@ -49,9 +48,9 @@ export const Login = () => {
         </form>
         <Separator>o</Separator>
         <div className={styles.register}>
-          ¿Estás empezando a usar LinkedIn? <Link to="/signup">Unirse ahora</Link>
+          ¿Estás empezando a usar LinkedIn? <Link to="/auth/signup">Unirse ahora</Link>
         </div>
       </Box>
-    </Layout>
+    </div>
   )
 }

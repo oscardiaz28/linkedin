@@ -1,0 +1,70 @@
+.root{
+
+    .toggle{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-right: 1px solid #e0e0e0;
+        padding-right: 1rem;
+    }
+
+    .top.avatar{
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+    }
+
+    .name{
+        font-size: 1.2rem;
+    }
+
+    .btn_logout{
+        font-size: 1.3rem;
+    }
+    
+    .menu{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        position: absolute;
+        top: 8rem;
+        background-color: white;
+        padding: 1.5rem;
+        right: 1rem;
+        width: min(28rem, 100%);
+        border: 1px solid #e9e9e9;
+        border-radius: .4rem;
+
+        .name{
+            font-weight: bold;
+            text-wrap: nowrap;
+            font-size: 1.4rem;
+        }
+
+        .title{
+            font-size: 1.2rem;
+        }
+
+        .content{
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar{
+            width: 6rem;
+            height: 6rem;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+
+
+    }
+
+
+
+}

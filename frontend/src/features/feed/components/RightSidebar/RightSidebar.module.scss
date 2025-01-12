@@ -1,0 +1,48 @@
+.root{
+    background-color: white;
+    border: 1px solid #e9e9e9;
+    border-radius: .4rem;
+    padding: 1.5rem;
+
+    h3{
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .items{
+        display: grid;
+        gap: 1rem;
+
+        .item{
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+
+            .avatar{
+                width: 5.5rem;
+                height: 5.5rem;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .name{
+                font-weight: bold;
+                font-size: 1.4rem;
+            }
+
+            .title{
+                font-size: 1.2rem;
+                color: #494949;
+                padding-bottom: .5rem;
+            }
+            .button{
+                border: 1.5px solid #333;
+                padding: .6rem 1.2rem;
+                border-radius: 9999px;
+                font-size: 1.4rem;
+                font-weight: 500;
+            }
+        }
+    }
+}

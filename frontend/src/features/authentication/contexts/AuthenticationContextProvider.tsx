@@ -1,15 +1,24 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react"
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react"
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader } from "../../../components/Loader/Loader";
 
-interface User{
+export interface User{
     id: string,
     email: string,
-    emailVerified: boolean
+    name: string,
+    emailVerified: boolean,
+    profilePicture?: string,
+    firstName?: string,
+    lastName?: string,
+    company?: string,
+    position?: string,
+    location?: string,
+    profileCompleted: boolean
 }
 
 interface AuthenticationContentType{
     user: User | null,
+    setUser: Dispatch<SetStateAction<User | null>>
     login: (email: string, password: string) => Promise<void>,
     signup: (email: string, password: string) => Promise<void>,
     logout: () => void
@@ -27,7 +36,8 @@ export const AuthenticationContextProvider = ( ) => {
     const location = useLocation();
 
     const isOnAuthPage = 
-    location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/request-password-reset";
+    location.pathname === "/auth/login" || location.pathname === "/auth/signup" || 
+    location.pathname === "/auth/request-password-reset";
 
     const login = async (email: string, password: string) => {
         try{
@@ -52,7 +62,6 @@ export const AuthenticationContextProvider = ( ) => {
     }
 
     const signup = async (email: string, password: string) => {
-        setIsLoading(true)
         try{
             const response = await fetch("/api/v1/auth/register" , {
                 method: "POST",
@@ -71,8 +80,6 @@ export const AuthenticationContextProvider = ( ) => {
         }catch(error){
             console.log("Error in Login", (error as Error).message)
             throw error;
-        }finally{
-            setIsLoading(false)
         }
     }
 
@@ -103,7 +110,7 @@ export const AuthenticationContextProvider = ( ) => {
             const user = await response.json()
             setUser(user)
         }catch(error){
-            console.log(error)
+            //console.log(error)
         }finally{
             setIsLoading(false)
         }
@@ -122,19 +129,42 @@ export const AuthenticationContextProvider = ( ) => {
     }
 
     if(!isLoading && !user && !isOnAuthPage){
-        return <Navigate to="/login" />
+        return <Navigate to="/auth/login" />
     }
 
-    if( user && user.emailVerified && isOnAuthPage ){
+    if( user && !user.emailVerified && location.pathname !== "/auth/verify-email" ){
+        console.log(user)
+        return <Navigate to="/auth/verify-email" />
+    }
+
+    if( user && user.emailVerified && location.pathname == "/auth/verify-email" ){
         return <Navigate to="/" />
     }
 
+    if(
+        user &&
+        user.emailVerified &&
+        !user.profileCompleted
+        && !location.pathname.includes("/auth/profile")
+    ){
+        return <Navigate to={`/auth/profile/${user.id}`} />
+    }
+
+    if(
+        user &&
+        user.emailVerified &&
+        user.profileCompleted &&
+        location.pathname.includes("/auth/profile")
+    ){
+        return <Navigate to="/" />
+    }
+
+    if(user && isOnAuthPage){
+        return <Navigate to="/" />
+    }
 
   return (
-    <AuthenticationContext.Provider value={{ user, login, signup, logout }}>
-        {
-            user && !user.emailVerified ? <Navigate to="/verify-email" /> : null
-        }
+    <AuthenticationContext.Provider value={{ user, login, signup, logout, setUser }}>
         <Outlet />
     </AuthenticationContext.Provider> 
   )

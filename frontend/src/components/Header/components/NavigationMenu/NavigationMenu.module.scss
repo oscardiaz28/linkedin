@@ -1,0 +1,58 @@
+.ul{
+    position: absolute;
+    list-style: none;
+    background-color: white;
+    top: 8rem;
+    right: 1.5rem;
+    padding: 1.5rem 2rem;
+    width: min(25rem, 100%);
+    border: 1px solid #e0e0e0;
+    border-radius: .4rem;
+    display: grid;
+    gap: 1.5rem;
+
+    a{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #666;
+
+        svg{
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        
+        &:hover{
+            color: black;
+        }
+
+        &.active{
+            color: var(--primary-color) !important;
+        }
+    }
+
+}
+  
+@media screen and (width >= 1080px) {
+    .ul a{
+        flex-direction: column;
+        gap: 0;
+        font-size: 1.2rem;
+        span{
+            color: #666;
+        }
+    }
+
+    .ul{
+        position: relative;
+        display: flex;
+        gap: 4rem;
+        align-items: center;
+        width: auto;
+        top: unset;
+        right: unset;
+        padding: unset;
+        border: unset;
+    }
+    
+}

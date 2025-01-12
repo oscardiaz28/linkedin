@@ -1,0 +1,66 @@
+.root{
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    padding: 1rem;
+    text-align: center;
+
+    .cover{
+        height: 12rem;
+        margin: -1rem;
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    .avatar{
+        width: 10rem;
+        height: 10rem;
+        margin-top: -5rem;
+        margin-inline: auto;
+        position: relative;
+        z-index: 2;
+        border: 2px solid black;
+        border-radius: 50%;
+        overflow: hidden;
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+    }
+
+    .name{
+        font-weight: bold;
+        margin-block: .5rem;
+    }
+
+    .title{
+        font-size: 1.3rem;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 2rem;
+    }
+
+    .info{
+        text-align: left;
+        margin-top: 2rem;
+        font-size: 1.3rem;
+
+        .item{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: .8rem;
+
+            .value{
+                font-weight: bold;
+            }
+        }
+    }
+
+}

@@ -1,18 +1,28 @@
 .root{
     display: grid;
     gap: 0.5rem;
+    width: 100%;
     margin-block: 1rem;
 
     input{
-        width: 100%;
-        padding: 0.7rem;
         border: 1px solid rgba(0, 0, 0, 0.6);
         border-radius: .4rem;
         outline: none;
-
         &:focus{
             border: 1px solid var(--primary-color-dark);
         }
+    }
+
+    &.large input{
+        padding: 1rem;
+    }
+    &.medium input{
+        padding: .5rem;
+        font-size: .9rem;
+    }
+    &.small input{
+        padding: 0.2rem;
+        font-size: .8rem;
     }
 
 }

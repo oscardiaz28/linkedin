@@ -1,0 +1,125 @@
+.root{
+    display: grid;
+    gap: .5rem;
+    position: relative;
+    font-size: 1.2rem;
+
+    &:not(:last-child){
+        margin-bottom: .8rem;
+        padding-bottom: .8rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    &:last-child{
+        padding-bottom: .8rem;
+    }
+
+    .header{
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: flex-start;
+
+        .avatar {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        button.author{
+            display: flex;
+            align-items: center;
+            text-align: left;
+            grid-template-columns: 4rem 1fr;
+            gap: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.5;
+
+            > div{
+                width: 100%;
+            }
+        }
+
+        .name {
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .date,
+        .title{
+            color: #666666;
+        }
+    }
+
+    .content{
+        margin-left: 5rem;
+    }
+
+    button.toggle{
+        background-color: transparent;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        transition: .3s;
+
+        &:hover,
+        &.active{
+            background-color: #e0e0e0;
+        }
+
+        svg{
+            width: 1.2rem;
+            height: 1.2rem;
+            fill: #494949;
+        }
+
+    }
+
+    .menu{
+        background-color: #e0e0e0;
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        border: 1px solid #e0e0e0;
+        z-index: 10;
+        border-radius: .8rem;
+        overflow: hidden;
+        width: 9rem;
+
+        button{
+            padding-left: 1.5rem;
+            padding-block: .3rem;
+            font-size: 1.2rem;
+            width: 100%;
+            text-align: left;
+            transition: .3s ease;
+
+            &:not(:last-child){
+                border-bottom: 1px solid #ccc;
+            }
+
+            &:hover{
+                background-color: #d2d0d0;
+            }
+        }
+    }
+
+    .form_edit_container{
+        position: relative;
+
+        .toggle{
+            position: absolute;
+            top: 2rem;
+            right: 1rem;
+        }
+    }
+
+
+}

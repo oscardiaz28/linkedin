@@ -1,0 +1,71 @@
+.root{
+    .logo{
+        color: var(--primary-color);
+    }
+    .input{
+        background-color: #EDF3F8;
+        outline: none;
+        border: 1px solid #dce5ed;
+        border-radius: .4rem;
+        padding: .6rem 1.6rem;  
+        font-size: 1.5rem;
+        width: 100%;
+    }
+   
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    
+    .container{
+        max-width: 120rem;
+        margin: 0 auto;
+        padding-block: 1rem;
+        padding-inline: 1rem;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        position: relative;
+        gap: 2rem;
+    }
+
+    .left{
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: auto 1fr;  
+        align-items: center;
+    }
+
+    .right{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .toggle svg{
+            width: 2.5rem;
+            height: 2.5rem;
+            color: #494949;
+        }
+    }
+
+    .toggle{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 1.3rem;
+    }
+
+    @media screen and (width >= 1080px) {
+        .left{
+            grid-template-columns: auto .7fr .3fr;
+        }
+        .right{
+            gap: 4rem;
+        }
+        .toggle{
+            display: none;
+        }
+    }
+
+}

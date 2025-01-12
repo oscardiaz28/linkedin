@@ -1,7 +1,8 @@
 import { ReactNode } from "react"
-import styles from './Layout.module.scss'
+import styles from './AuthLayout.module.scss'
+import { Outlet } from "react-router-dom"
 
-export const Layout = ( { children } : {children: ReactNode} ) => {
+export const AuthLayout = () => {
   return (
     <div className={styles.root}>
         <header className={styles.container}>
@@ -10,7 +11,7 @@ export const Layout = ( { children } : {children: ReactNode} ) => {
           </a>
         </header>
         <main className={styles.container}>
-          {children}
+          <Outlet />
         </main>
         <footer>
           <ul className={styles.container}>

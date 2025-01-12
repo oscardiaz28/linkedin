@@ -1,9 +1,8 @@
-import { Layout } from "../../components/Layout/Layout"
 
 export const ResetPassword = () => {
   return (
-    <Layout>
+    <div>
       <div>ResetPassword</div>
-    </Layout>
+    </div>
   )
 }
