@@ -37,12 +37,13 @@ public class AuthenticationFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Allow-Origin", "http://localhost:5173");
         response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        response.addHeader("Access-Control-Allow-Credentials", "true");
 
         String path = request.getRequestURI();
-        if(unsecuredEndpoints.contains(path)){
+        if( path.startsWith("/ws")  || unsecuredEndpoints.contains(path)){
             chain.doFilter(request, response);
             return;
         }
@@ -58,12 +59,6 @@ public class AuthenticationFilter extends HttpFilter {
 
             String email = jsonWebToken.getEmailFromToken(decodedJWT);
             AuthenticationUser user = authenticationService.getUser(email);
-
-            /*
-            if(!user.getEmailVerified()){
-                throw new ServletException("Acción no permitida, usuario no verificado");
-            }
-             */
 
             request.setAttribute("authenticatedUser", user);
             chain.doFilter(request, response);

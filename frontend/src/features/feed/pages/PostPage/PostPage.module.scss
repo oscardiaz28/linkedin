@@ -1,0 +1,19 @@
+.root{
+    display: grid;
+    gap: 2rem;    
+    align-items: flex-start;
+
+    .left,
+    .right{
+        display: none;
+    }
+
+    @media screen and (min-width: 1024px) {
+        grid-template-columns: 22rem 1fr 30rem;
+        .left,
+        .right{
+            display: block;
+        }
+    }
+
+}

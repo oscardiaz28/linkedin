@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/feed")
@@ -70,8 +71,8 @@ public class PostController {
     @PutMapping("/posts/{postId}/like")
     public ResponseEntity<?> likeUnlikePost(@PathVariable(name = "postId") Long id,
                                             @RequestAttribute("authenticatedUser") AuthenticationUser user){
-        Post post = postService.likeUnlikePost(id, user);
-        return ResponseEntity.ok().body(post);
+        Set<AuthenticationUser> likes = postService.likeUnlikePost(id, user);
+        return ResponseEntity.ok().body(likes);
     }
 
     @PostMapping("/posts/{postId}/comment")
@@ -96,5 +97,19 @@ public class PostController {
         postService.deleteComment(id, user);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<?> getCommentsByPost(@PathVariable(name = "postId") Long id){
+        List<Comment> comments = postService.getCommentsByPost(id);
+        return ResponseEntity.ok().body(comments);
+    }
+
+    @GetMapping("/posts/{postId}/likes")
+    public ResponseEntity<?> getLikesByPost(@PathVariable(name = "postId") Long id){
+        Set<AuthenticationUser> likes = postService.getLikesByPost(id);
+        return ResponseEntity.ok().body(likes);
+    }
+
+
 
 }

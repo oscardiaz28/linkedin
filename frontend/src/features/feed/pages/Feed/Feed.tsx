@@ -110,6 +110,7 @@ export const Feed = () => {
         </div>
 
       </div>
+      
       <div className={styles.right}>
         <RightSidebar />
       </div>

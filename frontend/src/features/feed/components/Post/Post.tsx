@@ -6,21 +6,22 @@ import { timeAgo } from '../../utils/date'
 import { Input } from '../../../../components/Input/Input'
 import { Comment } from '../Comment/Comment'
 import { Modal } from '../Modal/Modal'
+import { TimeAgo } from '../TimeAgo/TimeAgo'
+import { request } from '../../../../utils/api'
+import { useWebSocket } from '../../../ws/Ws'
 
 export interface Post{
   id: number,
   content: string,
   author: User,
   picture?: string,
-  likes?: User[],
-  comments?: Comment[],
   creationDate?: string,
   updatedDate?: string
 }
 
 interface PostProps{
   post: Post,
-  setPosts: Dispatch<SetStateAction<Post[]>>
+  setPosts?: Dispatch<SetStateAction<Post[]>>
 }
 
 export const Post = ( {post, setPosts} : PostProps ) => {
@@ -29,10 +30,99 @@ export const Post = ( {post, setPosts} : PostProps ) => {
   const [showMenu, setShowMenu] = useState(false)
   const [editing, setEditing] = useState(false)
   const [showComments, setShowComments] = useState(false)
-  const [postLiked, setPostLiked] = useState<boolean>(
-    !!post.likes?.some( (like) => like.id == user?.id )
-  )
+  
   const [content, setContent] = useState("")
+  const [comments, setComments] = useState<Comment[]>([])
+  const [likes, setLikes] = useState<User[]>([]);
+  const [postLiked, setPostLiked] = useState<boolean | undefined>(undefined)
+  const {client} = useWebSocket();
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try{
+        const url = `/api/v1/feed/posts/${post.id}/comments`
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}` 
+          }
+        })
+        if(!response.ok){
+          const {message} = await response.json()
+          throw new Error(message)
+        }
+        const data = await response.json()
+        setComments(data)
+      }catch(err){
+        if(err instanceof Error){
+          console.log(err.message)
+        }else{
+          console.log("Ha ocurrido un error")
+        }
+      }
+    }
+    fetchComments()
+  }, [post.id])
+
+  useEffect( () => {
+    const fetchLikes = async () => {
+      try{
+        const url = `/api/v1/feed/posts/${post.id}/likes`
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}` 
+          }
+        })
+        if(!response.ok){
+          const {message} = await response.json()
+          throw new Error(message)
+        }
+        const data = await response.json()
+        setLikes(data)
+        setPostLiked( !!data.some( (like: User) => like.id === user?.id ) )
+      }catch(err){
+        if(err instanceof Error){
+          console.log(err.message)
+        }else{
+          console.log("Ha ocurrido un error")
+        }
+      }
+    }
+    fetchLikes()
+  }, [post.id, user?.id] )
+
+  useEffect(() => {
+    const subscription = client?.subscribe(`/topic/likes/${post.id}`, (message) => {
+      const likes = JSON.parse(message.body)
+      setLikes(likes)
+      setPostLiked(likes.some( (like: User) => like.id === user?.id ))
+    })
+    return () => subscription?.unsubscribe();
+
+  }, [post.id, user?.id, client])
+
+  useEffect(() => {
+    const subscription = client?.subscribe(`/topic/comments/${post.id}`, (message) => {
+      const comment = JSON.parse(message.body)
+      setComments( (prev) => [comment, ...prev] )
+    })
+    return () => subscription?.unsubscribe();
+  }, [post.id, client])
+  
+  const like = async () => {
+    setPostLiked((prev) => !prev)
+    await request<Post>({
+      endpoint: `/api/v1/feed/posts/${post.id}/like`,
+      method: "PUT",
+      onSuccess: () => {
+      },
+      onFailure: (err) => {
+        console.log(err)
+        setPostLiked( (prev) => !prev )
+      }
+    })
+  }
 
   const deletePost = async (id: number) => {
     const url = `/api/v1/feed/posts/${id}`
@@ -48,35 +138,9 @@ export const Post = ( {post, setPosts} : PostProps ) => {
         throw new Error(message);
       }
       setPosts( (prev) => prev.filter( (p) => p.id !== id ) )
+
     }catch(err){
       console.log(err)
-    }
-  }
-
-  const like = async () => {
-    setPostLiked((prev) => !prev)
-    try{
-      const url = `/api/v1/feed/posts/${post.id}/like`
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      })
-      if(!response.ok){
-        const {message} = await response.json()
-        throw new Error(message)
-      }
-      const data = await response.json()
-      setPosts( (prevPost) => prevPost.map( p => p.id === data.id ? data : p ) )
-      
-    }catch(err){
-      if(err instanceof Error){
-        console.log(err.message)
-      }else{
-        console.log("Ha ocurrido un error. Porfavor intent mas tarde.")
-      }
-      setPostLiked((prev) => !prev)
     }
   }
 
@@ -95,26 +159,9 @@ export const Post = ( {post, setPosts} : PostProps ) => {
         const {message} = await response.json()
         throw new Error(message)
       }
-      setPosts( (prev) => {
-        return prev.map( (p) => {
-          if( p.id === post.id ){
-            return {
-              ...p,
-              comments: p.comments?.map( (c) => {
-                if(c.id === id){
-                  return {
-                    ...c,
-                    content,
-                    updatedDate: new Date().toString()
-                  }
-                }
-                return c
-              }),
-            }
-          }
-          return p
-        } )
-      } )
+      setComments( (prev) => 
+        prev.map( (comment) => (comment.id === id) ? {...comment, content} : comment )
+      )
 
     }catch(err){
       if(err instanceof Error){
@@ -138,17 +185,7 @@ export const Post = ( {post, setPosts} : PostProps ) => {
         const {message} = await response.json()
         throw new Error(message)
       }
-      setPosts( (prev) => {
-        return prev.map( (p) => {
-          if( p.id === post.id ){
-            return {
-              ...p,
-              comments: p.comments?.filter( (comment) => comment.id !== id )
-            }
-          }
-          return p
-        })
-      })
+      setComments( (prev) => prev.filter( (comment) => comment.id !== id ) )
     }catch(err){
       if(err instanceof Error){
         console.log(err.message)
@@ -178,17 +215,6 @@ export const Post = ( {post, setPosts} : PostProps ) => {
         throw new Error(message)
       }
       const data = await response.json()
-      setPosts( (prev) => {
-        return prev.map( (p) => {
-          if(p.id === post.id){
-            return {
-              ...p,
-              comments: p.comments ? [data, ...p.comments] : [data]
-            }
-          }
-          return p
-        } )
-      })
       setContent("")
     }catch(err){{
       if(err instanceof Error){
@@ -235,10 +261,6 @@ export const Post = ( {post, setPosts} : PostProps ) => {
     setShowMenu(false)
   }
 
-  useEffect( () => {
-    setPostLiked(!!post.likes?.some( (like) => like.id == user?.id ))
-  }, [post.likes, user?.id])
-
   return (
 
     <>
@@ -266,10 +288,7 @@ export const Post = ( {post, setPosts} : PostProps ) => {
             <div className={styles.info}>
               <div className={styles.name}>{post.author.firstName + " " + post.author.lastName}</div>
               <div className={styles.title}>{post.author.position + " at " + post.author.company}</div>
-              <div className={styles.date}>
-                { timeAgo(new Date(post.updatedDate ?? post.creationDate ?? new Date()) ) }
-                { post.updatedDate ? " . Edited" : "" }
-              </div>
+              <TimeAgo date={post.creationDate || ''} edited={!!post.updatedDate} />
             </div>
           </div>
           <div className={styles.options}>
@@ -302,23 +321,23 @@ export const Post = ( {post, setPosts} : PostProps ) => {
 
         <div className={styles.stats}>
           
-              { post.likes && post.likes.length > 0 ? (
+              { likes.length > 0 ? (
                 <div className={styles.stat}>
-                  <span>{postLiked ? "You " : post.likes[0].firstName + " " + post.likes[0].lastName + " "}</span>
-                  {post.likes.length - 1 > 0 ? (
+                  <span>{postLiked ? "You " : likes[0].firstName + " " + likes[0].lastName + " "}</span>
+                  {likes.length - 1 > 0 ? (
                     <span>
-                      and {post.likes.length - 1} {post.likes.length - 1 === 1 ? "other" : "others"}
+                      and {likes.length - 1} {likes.length - 1 === 1 ? "other " : "others "}
                     </span>
-                  ) : null}{" "}
+                  ) : null}
                   liked this
               </div>
             )  : (
             <div></div>
           )}
 
-          {post.comments && post.comments.length > 0 ? (
+          {comments.length > 0 ? (
             <button className={styles.stat} onClick={ () => setShowComments((prev) => !prev) }>
-              <span>{post.comments.length} { post.comments.length == 1 ? "comentario" : "comentarios" }</span>
+              <span>{comments.length} { comments.length == 1 ? "comentario" : "comentarios" }</span>
             </button>
           ) : (
             <div></div>
@@ -360,7 +379,7 @@ export const Post = ( {post, setPosts} : PostProps ) => {
               style={{marginBlock: 0}}
               />
             </form>
-            {post.comments?.map( (comment) => {
+            {comments?.map( (comment) => {
               return (
                 <Comment 
                   key={comment.id}

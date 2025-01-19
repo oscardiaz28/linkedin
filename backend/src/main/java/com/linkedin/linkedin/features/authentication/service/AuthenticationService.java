@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -114,7 +115,6 @@ public class AuthenticationService {
         }
     }
 
-
     public AuthenticationUser updateUserProfile(Long id, String firstName, String lastName, String company,
                                                 String position, String location) {
         AuthenticationUser user = authRepository.findById(id).
@@ -125,6 +125,14 @@ public class AuthenticationService {
         if( position != null ) user.setPosition(position);
         if( location != null ) user.setLocation(location);
         return authRepository.save(user);
+    }
+
+    public List<AuthenticationUser> getUsersWithoutAuth(AuthenticationUser user) {
+        return authRepository.getUsersWithoutAuth(user.getId());
+    }
+
+    public AuthenticationUser getUserById(Long id){
+        return authRepository.findById(id).orElseThrow( () -> new LinkedinException("Usuario no encontrado") );
     }
 
 }

@@ -1,6 +1,12 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react"
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader } from "../../../components/Loader/Loader";
+import { request } from "../../../utils/api";
+
+export interface AuthenticationResponse{
+    token: string,
+    message: string
+}
 
 export interface User{
     id: string,
@@ -40,47 +46,31 @@ export const AuthenticationContextProvider = ( ) => {
     location.pathname === "/auth/request-password-reset";
 
     const login = async (email: string, password: string) => {
-        try{
-            const response = await fetch("/api/v1/auth/login" , {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({email, password})
-            })
-            if( !response.ok ){
-                const errorData = await response.json()
-                const {message} = errorData
-                throw new Error(message)
+        await request<AuthenticationResponse>({
+            endpoint: "/api/v1/auth/login",
+            method: "POST",
+            body: JSON.stringify({email, password}),
+            onSuccess: ({token}) => {
+                localStorage.setItem("token", token)
+            },
+            onFailure: (err) => {
+                throw new Error(err)
             }
-            const {token} = await response.json()
-            localStorage.setItem("token", token)
-        }catch(error){
-            //console.log("Error in Login", (error as Error).message)
-            throw error;
-        }
+        })
     }
 
     const signup = async (email: string, password: string) => {
-        try{
-            const response = await fetch("/api/v1/auth/register" , {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({email, password})
-            })
-            const data = await response.json()
-            if( !response.ok ){
-                const {message} = data
-                throw new Error(message)
+        await request<AuthenticationResponse>({
+            endpoint: "/api/v1/auth/register",
+            method: "POST",
+            body: JSON.stringify({email, password}),
+            onSuccess: ( {token} ) => {
+                localStorage.setItem("token", token)
+            },
+            onFailure: (err) => {
+                throw new Error(err);
             }
-            const {token} = data
-            localStorage.setItem("token", token)
-        }catch(error){
-            console.log("Error in Login", (error as Error).message)
-            throw error;
-        }
+        })
     }
 
     const logout = () => {
@@ -95,25 +85,12 @@ export const AuthenticationContextProvider = ( ) => {
             setIsLoading(false)
             return
         }
-        setIsLoading(true)
-        console.log("FetchUser se ejecuto")
-        try{
-            const response = await fetch("/api/v1/auth/user", {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            if(!response.ok){
-                throw new Error("Authentication failed")
-            }
-            const user = await response.json()
-            setUser(user)
-        }catch(error){
-            //console.log(error)
-        }finally{
-            setIsLoading(false)
-        }
+        await request<User>({
+            endpoint: "/api/v1/auth/user",
+            onSuccess: data => setUser(data),
+            onFailure: (err) => console.log(err)
+        })
+        setIsLoading(false)
     }
 
     useEffect( () =>  {

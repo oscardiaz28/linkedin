@@ -1,0 +1,51 @@
+.root{
+    display: grid;
+    gap: 2rem;    
+    align-items: flex-start;
+
+    .left,
+    .right{
+        display: none;
+    }
+
+    @media screen and (min-width: 1024px) {
+        grid-template-columns: 22rem 1fr 30rem;
+        .left,
+        .right{
+            display: block;
+        }
+    }
+
+    .notification{
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        gap: 1.5rem;
+        width: 100%;
+
+        &:not(:last-child) {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        &.unread{
+            background-color: #f0f0f0;
+        }
+
+        .avatar{
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+    }
+
+    .center{
+        background-color: white;
+        border-radius: .5rem;
+        border: 1px solid #e0e0e0;
+        overflow: hidden;
+    }
+
+}

@@ -5,6 +5,9 @@ import { useAuthentication } from '../../features/authentication/contexts/Authen
 import { useEffect, useState } from 'react'
 import { Profile } from './components/Profile/Profile'
 import { NavigationMenu } from './components/NavigationMenu/NavigationMenu'
+import { useWebSocket } from '../../features/ws/Ws'
+import { request } from '../../utils/api'
+import { Notification } from '../../features/feed/pages/Notifications/Notifications'
 
 export const Header = () => {
   const {user} = useAuthentication();
@@ -12,6 +15,35 @@ export const Header = () => {
   const [showNavigationMenu, setShowNavigationMenu] = useState(
     window.innerWidth > 1080 ? true : false
   )
+  const { client, connected } = useWebSocket();
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const nonReadNotificationsCount = notifications.filter( (notification) => !notification.read ).length
+  
+  useEffect(() => {
+      const fetchNotifications = async () => {
+          await request<Notification[]>({
+              endpoint: "/api/v1/notifications",
+              onSuccess: (data) => setNotifications(data),
+              onFailure: (err) => console.log(err) 
+          })
+      } 
+      fetchNotifications();
+  }, [])
+
+  useEffect( () => {
+      const subscription = client?.subscribe(`/topic/users/${user?.id}/notifications`, (message) => {
+          const notification = JSON.parse(message.body)
+          setNotifications( (prev) => {
+              const index = prev.findIndex( (n) => n.id == notification.id )
+              if( index === -1 ){
+                  return [notification, ...prev]
+              }
+              return prev.map( (n) => (n.id === notification.id ? notification: n ))
+          } )
+      })
+      return () => subscription?.unsubscribe()
+  }, [user?.id, client])   
+  
 
   useEffect(() => {
     //watch window size changes
@@ -26,8 +58,10 @@ export const Header = () => {
 
   }, [])
 
+
   return (
-    <header className={styles.root}>
+    <header className={styles.root}
+    >
         <div className={styles.container}>
 
             <div className={styles.left}>
@@ -52,7 +86,7 @@ export const Header = () => {
               </button>
 
               { showNavigationMenu ? (
-                  <NavigationMenu setShowProfileMenu={setShowProfileMenu} setShowNavigationMenu={setShowNavigationMenu} />
+                  <NavigationMenu count={nonReadNotificationsCount} setShowProfileMenu={setShowProfileMenu} setShowNavigationMenu={setShowNavigationMenu} />
               ) : null }
 
               {user ? (

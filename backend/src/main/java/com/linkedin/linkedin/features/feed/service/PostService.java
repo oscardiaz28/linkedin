@@ -11,11 +11,13 @@ import com.linkedin.linkedin.features.feed.model.Post;
 import com.linkedin.linkedin.features.feed.model.PostDto;
 import com.linkedin.linkedin.features.feed.repository.CommentRepository;
 import com.linkedin.linkedin.features.feed.repository.PostRepository;
+import com.linkedin.linkedin.features.notifications.service.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PostService {
@@ -24,13 +26,15 @@ public class PostService {
     private final PostMapper postMapper;
     private final AuthenticationUserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     public PostService(PostRepository postRepository, PostMapper postMapper,
-                       AuthenticationUserRepository userRepository, CommentRepository commentRepository) {
+                       AuthenticationUserRepository userRepository, CommentRepository commentRepository, NotificationService notificationService) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.notificationService = notificationService;
     }
 
     public Post createPost(PostDto postDto, AuthenticationUser user) {
@@ -73,7 +77,7 @@ public class PostService {
         return postRepository.findByAuthorId(userId);
     }
 
-    public Post likeUnlikePost(Long postId, AuthenticationUser user) {
+    public Set<AuthenticationUser> likeUnlikePost(Long postId, AuthenticationUser user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow( () -> new LinkedinException("Post no encontrado") );
         AuthenticationUser author = userRepository.findById(user.getId())
@@ -85,9 +89,12 @@ public class PostService {
         }else{
             post.getLikes().add(user);
             mensaje = "Se ha dado like al post";
+            notificationService.sendLikeNotification(user, post.getAuthor(), post.getId());
         }
         System.out.println(mensaje);
-        return postRepository.save(post);
+        Post postSaved =  postRepository.save(post);
+        notificationService.sendLikeToPost(postId, postSaved.getLikes());
+        return postSaved.getLikes();
     }
 
     public ResponseEntity<?> getOnePost(Long id) {
@@ -103,7 +110,11 @@ public class PostService {
         comment.setContent(commentDto.getContent());
         comment.setAuthor(user);
         comment.setPost(post);
-        return commentRepository.save(comment);
+
+        Comment commentSaved = commentRepository.save(comment);
+        notificationService.sendCommentNotification(user, post.getAuthor(), post.getId());
+        notificationService.sendCommentToPost(postId, commentSaved);
+        return commentSaved;
     }
 
 
@@ -130,4 +141,17 @@ public class PostService {
         }
         commentRepository.delete(comment);
     }
+
+    public List<Comment> getCommentsByPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow( () -> new LinkedinException("Post no encontrado"));
+        return post.getComments();
+    }
+
+    public Set<AuthenticationUser> getLikesByPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow( () -> new LinkedinException("Post no encontrado"));
+        return post.getLikes();
+    }
+
 }

@@ -2,6 +2,9 @@ package com.linkedin.linkedin.features.authentication.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.linkedin.linkedin.features.feed.model.Post;
+import com.linkedin.linkedin.features.messaging.model.Conversation;
+import com.linkedin.linkedin.features.messaging.model.Message;
+import com.linkedin.linkedin.features.notifications.model.Notification;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -37,6 +40,23 @@ public class AuthenticationUser {
     )
     @JsonIgnore
     private List<Post> posts;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "recipient")
+    @JsonIgnore
+    private List<Notification> receiveNotifications;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "actor")
+    @JsonIgnore
+    private List<Notification> actedNotifications;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Conversation> conversationsAsAuthor;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Conversation> conversationsAsAuthorAsRecipient;
+
 
     public AuthenticationUser(String email, String password){
         this.email = email;
@@ -197,5 +217,38 @@ public class AuthenticationUser {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public List<Notification> getReceiveNotifications() {
+        return receiveNotifications;
+    }
+
+    public void setReceiveNotifications(List<Notification> receiveNotifications) {
+        this.receiveNotifications = receiveNotifications;
+    }
+
+    public List<Notification> getActedNotifications() {
+        return actedNotifications;
+    }
+
+    public void setActedNotifications(List<Notification> actedNotifications) {
+        this.actedNotifications = actedNotifications;
+    }
+
+    public List<Conversation> getConversationsAsAuthor() {
+        return conversationsAsAuthor;
+    }
+
+    public void setConversationsAsAuthor(List<Conversation> conversationsAsAuthor) {
+        this.conversationsAsAuthor = conversationsAsAuthor;
+    }
+
+
+    public List<Conversation> getConversationsAsAuthorAsRecipient() {
+        return conversationsAsAuthorAsRecipient;
+    }
+
+    public void setConversationsAsAuthorAsRecipient(List<Conversation> conversationsAsAuthorAsRecipient) {
+        this.conversationsAsAuthorAsRecipient = conversationsAsAuthorAsRecipient;
     }
 }

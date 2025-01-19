@@ -11,8 +11,12 @@ import { AuthenticationContextProvider } from './features/authentication/context
 import { AuthLayout } from './features/authentication/components/AuthLayout/AuthLayout'
 import { ApplicationLayout } from './components/ApplicationLayout/ApplicationLayout'
 import { Profile } from './features/authentication/pages/Profile/Profile'
+import { Notifications } from './features/feed/pages/Notifications/Notifications'
+import { PostPage } from './features/feed/pages/PostPage/PostPage'
 
 const router = createBrowserRouter([
+  
+
   {
     element: <AuthenticationContextProvider />,
     children: [
@@ -37,16 +41,20 @@ const router = createBrowserRouter([
             element: <div>Messaging</div>
           },
           {
-            path: "Notifications",
-            element: <div>Notifications</div>
+            path: "notifications",
+            element: <Notifications />
           },
           {
-            path: "profile/{id}",
+            path: "profile/:id",
             element: <div>Profile</div>
           },
           {
-            path: "Settings",
+            path: "settings",
             element: <div>Settings & Privacy</div>
+          },
+          {
+            path: "posts/:id",
+            element: <PostPage />
           }
         ]
       },
